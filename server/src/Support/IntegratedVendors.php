@@ -302,6 +302,16 @@ class IntegratedVendors
                 ], 'optionValue' => 'value', 'optionLabel' => 'label'],
                 ['key' => 'markup_amount'],
                 ['key' => 'client_label'],
+                ['key' => 'insurance_provider', 'options' => [
+                    ['value' => 'none',        'label' => 'No insurance'],
+                    ['value' => 'shipsurance', 'label' => 'Shipsurance'],
+                ], 'optionValue' => 'value', 'optionLabel' => 'label'],
+                ['key' => 'insurance_default', 'options' => [
+                    ['value' => 'none',   'label' => 'No insurance'],
+                    ['value' => 'auto',   'label' => 'Auto-insure all'],
+                    ['value' => 'prompt', 'label' => 'Ask per shipment'],
+                ], 'optionValue' => 'value', 'optionLabel' => 'label'],
+                ['key' => 'shipsurance_api_key'],
             ],
             'bridgeParams' => [
                 'clientId'      => 'credentials.client_id',
@@ -336,6 +346,16 @@ class IntegratedVendors
                 ], 'optionValue' => 'value', 'optionLabel' => 'label'],
                 ['key' => 'markup_amount'],
                 ['key' => 'client_label'],
+                ['key' => 'insurance_provider', 'options' => [
+                    ['value' => 'none',        'label' => 'No insurance'],
+                    ['value' => 'shipsurance', 'label' => 'Shipsurance'],
+                ], 'optionValue' => 'value', 'optionLabel' => 'label'],
+                ['key' => 'insurance_default', 'options' => [
+                    ['value' => 'none',   'label' => 'No insurance'],
+                    ['value' => 'auto',   'label' => 'Auto-insure all'],
+                    ['value' => 'prompt', 'label' => 'Ask per shipment'],
+                ], 'optionValue' => 'value', 'optionLabel' => 'label'],
+                ['key' => 'shipsurance_api_key'],
             ],
             'bridgeParams' => [
                 'clientId'     => 'credentials.client_id',
