@@ -401,7 +401,9 @@ class ParcelPath
                 'service_type' => 'parcel',
                 'amount'       => $row['amount'],
                 'currency'     => $row['currency'],
-                'meta'         => $row['meta'],
+                'meta'         => array_merge($row['meta'], [
+                    'facilitator_public_id' => $this->integratedVendor?->public_id,
+                ]),
             ]);
 
             ServiceQuoteItem::create([

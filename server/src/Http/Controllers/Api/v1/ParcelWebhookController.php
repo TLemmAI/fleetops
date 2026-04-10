@@ -146,9 +146,13 @@ class ParcelWebhookController extends FleetOpsController
     {
         $configuredSecret = config('services.' . strtolower($providerKey) . '.webhook_secret');
 
-        // No secret configured = verification disabled (dev mode).
+        // No secret configured = REJECT by default. Operators must
+        // explicitly set the webhook secret in config/services.php or
+        // via env var (e.g. PARCELPATH_WEBHOOK_SECRET) to enable the
+        // endpoint. This prevents unauthenticated access in production
+        // deployments that forget to configure the secret.
         if (empty($configuredSecret)) {
-            return true;
+            return false;
         }
 
         $providedSecret = $request->header('X-Webhook-Secret', '');

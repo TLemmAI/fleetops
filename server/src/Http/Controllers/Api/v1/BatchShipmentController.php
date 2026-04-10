@@ -229,11 +229,22 @@ class BatchShipmentController extends FleetOpsController
                 ->orWhere('uuid', $row['order_uuid'])
                 ->firstOrFail();
         } else {
+            // Resolve the facilitator UUID from the ServiceQuote's meta
+            // so the auto-created Order carries the vendor reference.
+            // This is required for purchaseRow's vendor resolution chain.
+            $facilitatorPublicId = $sq->meta['facilitator_public_id'] ?? null;
+            $facilitatorUuid = null;
+            if ($facilitatorPublicId) {
+                $facilitatorUuid = IntegratedVendor::where('public_id', $facilitatorPublicId)->value('uuid');
+            }
+
             $order = Order::create([
-                'company_uuid'  => $request->session()->get('company'),
-                'payload_uuid'  => $sq->payload_uuid,
-                'type'          => 'parcel',
-                'status'        => 'created',
+                'company_uuid'    => $request->session()->get('company'),
+                'payload_uuid'    => $sq->payload_uuid,
+                'facilitator_uuid' => $facilitatorUuid,
+                'facilitator_type' => $facilitatorUuid ? 'integrated-vendor' : null,
+                'type'            => 'parcel',
+                'status'          => 'created',
             ]);
         }
 
