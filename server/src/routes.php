@@ -228,6 +228,8 @@ Route::prefix(config('fleetops.api.routing.prefix', null))->namespace('Fleetbase
         $router->group(['prefix' => 'webhooks'], function () use ($router) {
             $router->any('telematics/{providerKey}', 'TelematicWebhookController@handle');
             $router->any('telematics/ingest/{id}', 'TelematicWebhookController@ingest');
+            // Phase 3 Task 26: carrier tracking webhook ingestion
+            $router->post('parcel/{providerKey}', 'Api\v1\ParcelWebhookController@handle');
         });
 
         /*
