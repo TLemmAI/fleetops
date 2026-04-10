@@ -620,6 +620,13 @@ order:
     service-quote-info: Select a real time service quote to apply to this order. Once a quote is applied to the order, it will become a purchased rate. Transactions will be tracked within the Fleetbase ledger.
     estimated-days: '{days, plural, one {1 day} other {{days} days}}'
     via-facilitator: 'via {facilitator}'
+    via-parcelpath: via ParcelPath
+    your-account: your account
+    sorted-by: 'Sorted by:'
+    sort-price: lowest price
+    sort-speed: fastest delivery
+    switch-to-speed: Sort by speed
+    switch-to-price: Sort by price
   prompts:
     update-details-success: '{orderId} details has been updated.'
     route-error: Route optimization failed, check route entry and try again.
