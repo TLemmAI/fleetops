@@ -158,6 +158,11 @@ Route::prefix(config('fleetops.api.routing.prefix', null))->namespace('Fleetbase
                 $router->get('/', 'ServiceQuoteController@query');
                 $router->get('{id}', 'ServiceQuoteController@find');
             });
+            // batch-shipments routes (Phase 3 Task 25)
+            $router->group(['prefix' => 'batch-shipments'], function () use ($router) {
+                $router->post('rates', 'BatchShipmentController@rates');
+                $router->post('purchase', 'BatchShipmentController@purchase');
+            });
             // tracking-numbers routes
             $router->group(['prefix' => 'tracking-numbers'], function () use ($router) {
                 $router->post('/', 'TrackingNumberController@create');

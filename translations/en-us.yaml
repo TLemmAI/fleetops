@@ -1744,3 +1744,29 @@ carrier-onboarding:
     usps: USPS Direct
     connect: Connect
     hybrid-note: Tip — you can run ParcelPath and direct accounts side by side. The order rate selector will show all matching rates and you pick the best one per shipment.
+batch-shipping:
+  title: Batch Shipping
+  upload-description: Upload a CSV file with one shipment per row. Required columns: pickup, dropoff, length, width, height, weight. Optional: row_id, facilitator.
+  preview-title: Preview Shipments
+  rated-title: Rate Results
+  purchasing-title: Purchasing Labels
+  purchasing-message: Purchasing labels...
+  done-title: Batch Complete
+  col-row-id: Row
+  col-pickup: Pickup
+  col-dropoff: Dropoff
+  col-weight: Weight
+  col-facilitator: Facilitator
+  col-rate: Rate
+  col-status: Status
+  col-tracking: Tracking
+  col-label: Label
+  back: Back
+  rate-all: Rate All
+  purchase-all: Purchase All Labels
+  new-batch: New Batch
+  no-rates: No rates
+  rated: Rated
+  purchased: Purchased
+  skipped: Skipped
+  download-label: Download PDF
