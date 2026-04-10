@@ -1,0 +1,163 @@
+<div class="batch-shipping-panel" ...attributes>
+    {{!-- Step: Upload --}}
+    {{#if (eq this.step "upload")}}
+        <ContentPanel @title={{t "batch-shipping.title"}} @open={{true}} @wrapperClass="bordered-top">
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">{{t "batch-shipping.upload-description"}}</p>
+            <input
+                type="file"
+                accept=".csv"
+                class="form-input text-sm"
+                {{on "change" this.handleFileUpload}}
+                data-test-csv-upload
+            />
+        </ContentPanel>
+    {{/if}}
+
+    {{!-- Step: Preview --}}
+    {{#if (eq this.step "preview")}}
+        <ContentPanel @title={{t "batch-shipping.preview-title"}} @open={{true}} @wrapperClass="bordered-top">
+            <div class="next-table-wrapper no-scroll mb-4">
+                <table class="table table-fixed w-full">
+                    <thead>
+                        <tr>
+                            <th>{{t "batch-shipping.col-row-id"}}</th>
+                            <th>{{t "batch-shipping.col-pickup"}}</th>
+                            <th>{{t "batch-shipping.col-dropoff"}}</th>
+                            <th>{{t "batch-shipping.col-weight"}}</th>
+                            <th>{{t "batch-shipping.col-facilitator"}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each this.rows as |row|}}
+                            <tr data-test-preview-row={{row.row_id}}>
+                                <td>{{row.row_id}}</td>
+                                <td>{{row.pickup}}</td>
+                                <td>{{row.dropoff}}</td>
+                                <td>{{row.parcels.firstObject.weight}} lb</td>
+                                <td>{{or row.facilitator "auto"}}</td>
+                            </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-between">
+                <Button @text={{t "batch-shipping.back"}} @onClick={{this.reset}} />
+                <Button @type="primary" @text={{t "batch-shipping.rate-all"}} @isLoading={{this.isLoading}} @onClick={{this.rateAll}} data-test-rate-all />
+            </div>
+        </ContentPanel>
+    {{/if}}
+
+    {{!-- Step: Rated --}}
+    {{#if (eq this.step "rated")}}
+        <ContentPanel @title={{t "batch-shipping.rated-title"}} @open={{true}} @wrapperClass="bordered-top">
+            <div class="next-table-wrapper no-scroll mb-4">
+                <table class="table table-fixed w-full">
+                    <thead>
+                        <tr>
+                            <th>{{t "batch-shipping.col-row-id"}}</th>
+                            <th>{{t "batch-shipping.col-pickup"}}</th>
+                            <th>{{t "batch-shipping.col-dropoff"}}</th>
+                            <th>{{t "batch-shipping.col-rate"}}</th>
+                            <th>{{t "batch-shipping.col-status"}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each this.rows as |row|}}
+                            <tr data-test-rated-row={{row.row_id}}>
+                                <td>{{row.row_id}}</td>
+                                <td class="truncate">{{row.pickup}}</td>
+                                <td class="truncate">{{row.dropoff}}</td>
+                                <td>
+                                    {{#if row._rateError}}
+                                        <span class="text-red-500 text-xs">{{row._rateError}}</span>
+                                    {{else if row._rates.length}}
+                                        <select
+                                            class="form-select form-input text-xs w-full"
+                                            {{on "change" (fn this.selectQuote row)}}
+                                            data-test-rate-select={{row.row_id}}
+                                        >
+                                            {{#each row._rates as |rate|}}
+                                                <option value={{rate.uuid}} selected={{eq rate.uuid row._selectedQuoteUuid}}>
+                                                    {{or rate.meta.carrier ""}} {{or rate.meta.service_token rate.public_id}} — {{format-currency rate.amount rate.currency}}
+                                                </option>
+                                            {{/each}}
+                                        </select>
+                                    {{else}}
+                                        <span class="text-gray-400 text-xs">{{t "batch-shipping.no-rates"}}</span>
+                                    {{/if}}
+                                </td>
+                                <td>
+                                    {{#if row._rateError}}
+                                        <Badge @status="danger" @hideStatusDot={{true}}>{{t "common.error"}}</Badge>
+                                    {{else if row._rates.length}}
+                                        <Badge @status="success" @hideStatusDot={{true}}>{{t "batch-shipping.rated"}}</Badge>
+                                    {{/if}}
+                                </td>
+                            </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-between">
+                <Button @text={{t "batch-shipping.back"}} @onClick={{this.reset}} />
+                <Button @type="primary" @text={{t "batch-shipping.purchase-all"}} @isLoading={{this.isLoading}} @onClick={{this.purchaseAll}} data-test-purchase-all />
+            </div>
+        </ContentPanel>
+    {{/if}}
+
+    {{!-- Step: Purchasing --}}
+    {{#if (eq this.step "purchasing")}}
+        <ContentPanel @title={{t "batch-shipping.purchasing-title"}} @open={{true}} @wrapperClass="bordered-top">
+            <div class="flex items-center justify-center py-10">
+                <Spinner class="text-sm dark:text-gray-100 flex flex-row items-center" @iconClass="mr-2" @loadingMessage={{t "batch-shipping.purchasing-message"}} />
+            </div>
+        </ContentPanel>
+    {{/if}}
+
+    {{!-- Step: Done --}}
+    {{#if (eq this.step "done")}}
+        <ContentPanel @title={{t "batch-shipping.done-title"}} @open={{true}} @wrapperClass="bordered-top">
+            <div class="next-table-wrapper no-scroll mb-4">
+                <table class="table table-fixed w-full">
+                    <thead>
+                        <tr>
+                            <th>{{t "batch-shipping.col-row-id"}}</th>
+                            <th>{{t "batch-shipping.col-tracking"}}</th>
+                            <th>{{t "batch-shipping.col-label"}}</th>
+                            <th>{{t "batch-shipping.col-status"}}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each this.rows as |row|}}
+                            <tr data-test-done-row={{row.row_id}}>
+                                <td>{{row.row_id}}</td>
+                                <td>{{or row._purchaseResult.tracking_number "—"}}</td>
+                                <td>
+                                    {{#if row._purchaseResult.label_file_uuid}}
+                                        <a href="/v1/files/{{row._purchaseResult.label_file_uuid}}/download" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline text-xs">
+                                            {{t "batch-shipping.download-label"}}
+                                        </a>
+                                    {{else}}
+                                        —
+                                    {{/if}}
+                                </td>
+                                <td>
+                                    {{#if (eq row._purchaseResult.status "ok")}}
+                                        <Badge @status="success" @hideStatusDot={{true}}>{{t "batch-shipping.purchased"}}</Badge>
+                                    {{else if (eq row._purchaseResult.status "error")}}
+                                        <Badge @status="danger" @hideStatusDot={{true}}>{{row._purchaseResult.error}}</Badge>
+                                    {{else}}
+                                        <Badge @status="default" @hideStatusDot={{true}}>{{t "batch-shipping.skipped"}}</Badge>
+                                    {{/if}}
+                                </td>
+                            </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+            <div class="flex justify-between">
+                <Button @text={{t "batch-shipping.new-batch"}} @onClick={{this.reset}} />
+            </div>
+        </ContentPanel>
+    {{/if}}
+</div>

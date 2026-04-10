@@ -30,6 +30,7 @@ class FleetOpsServiceProvider extends CoreServiceProvider
         \Fleetbase\FleetOps\Models\PurchaseRate::class         => \Fleetbase\FleetOps\Observers\PurchaseRateObserver::class,
         \Fleetbase\FleetOps\Models\ServiceArea::class          => \Fleetbase\FleetOps\Observers\ServiceAreaObserver::class,
         \Fleetbase\FleetOps\Models\TrackingNumber::class       => \Fleetbase\FleetOps\Observers\TrackingNumberObserver::class,
+        \Fleetbase\FleetOps\Models\TrackingStatus::class       => \Fleetbase\FleetOps\Observers\TrackingStatusObserver::class,
         \Fleetbase\FleetOps\Models\Driver::class               => \Fleetbase\FleetOps\Observers\DriverObserver::class,
         \Fleetbase\FleetOps\Models\Vehicle::class              => \Fleetbase\FleetOps\Observers\VehicleObserver::class,
         \Fleetbase\FleetOps\Models\Fleet::class                => \Fleetbase\FleetOps\Observers\FleetObserver::class,

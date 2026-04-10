@@ -12,6 +12,7 @@ use Fleetbase\FleetOps\Models\PurchaseRate;
 use Fleetbase\FleetOps\Models\ServiceQuote;
 use Fleetbase\FleetOps\Models\ServiceQuoteItem;
 use Fleetbase\FleetOps\Models\ServiceRate;
+use Fleetbase\FleetOps\Support\FacilitatorInputParser;
 use Fleetbase\FleetOps\Support\IntegratedVendorResolver;
 use Fleetbase\FleetOps\Support\Payment;
 use Fleetbase\FleetOps\Support\Utils;
@@ -57,31 +58,77 @@ class ServiceQuoteController extends FleetOpsController
             return $this->preliminaryQuery($request);
         }
 
-        // if facilitator is an integrated partner resolve service quotes from bridge
-        if ($facilitator && Str::startsWith($facilitator, 'integrated_vendor')) {
-            $integratedVendor = IntegratedVendor::where('public_id', $facilitator)->first();
-            $serviceQuotes    = [];
+        // ─────────────────────────────────────────────────────────────────
+        // Explicit facilitator path (single OR multi).
+        //
+        // Phase 1 behavior (single facilitator) is fully preserved:
+        //   facilitator=integrated_vendor_abc  → query that one vendor
+        //
+        // Phase 3 Task 23 adds the multi-facilitator (hybrid) path:
+        //   facilitator=integrated_vendor_a,integrated_vendor_b
+        //   → query both, aggregate all quotes into one response
+        //   → per-vendor error isolation (one failure doesn't abort)
+        //   → duplicates are de-duped before dispatching
+        //
+        // Both paths take priority over the Phase 2 auto-resolver.
+        // If facilitator is null/empty, fall through to auto-resolve.
+        // ─────────────────────────────────────────────────────────────────
+        $facilitatorIds = FacilitatorInputParser::parse($facilitator);
 
-            if ($integratedVendor) {
-                try {
-                    $serviceQuotes = $integratedVendor->api()->setRequestId($requestId)->getQuoteFromPayload($payload, $serviceType, $scheduledAt, $isRouteOptimized);
-                } catch (\Exception $e) {
-                    return response()->json([
-                        'errors' => [$e->getMessage()],
-                    ], 400);
+        if (count($facilitatorIds) > 0) {
+            $hasIntegratedVendor = false;
+            foreach ($facilitatorIds as $fid) {
+                if (FacilitatorInputParser::isIntegratedVendorId($fid)) {
+                    $hasIntegratedVendor = true;
+                    break;
                 }
             }
 
-            // send single quote back
-            if ($single) {
+            if ($hasIntegratedVendor) {
+                $serviceQuotes = [];
+
+                foreach ($facilitatorIds as $facId) {
+                    if (!FacilitatorInputParser::isIntegratedVendorId($facId)) {
+                        continue;
+                    }
+
+                    $integratedVendor = IntegratedVendor::where('public_id', $facId)->first();
+                    if (!$integratedVendor) {
+                        continue;
+                    }
+
+                    try {
+                        $fromBridge = $integratedVendor->api()
+                            ->setRequestId($requestId)
+                            ->getQuoteFromPayload($payload, $serviceType, $scheduledAt, $isRouteOptimized);
+
+                        if (!is_array($fromBridge)) {
+                            $fromBridge = [$fromBridge];
+                        }
+
+                        $serviceQuotes = array_merge($serviceQuotes, $fromBridge);
+                    } catch (\Exception $e) {
+                        // Single-facilitator backward compat: if only ONE
+                        // facilitator was requested and it fails, return a
+                        // 400 error (preserves Phase 1 behavior exactly).
+                        // Multi-facilitator: swallow per-vendor errors so
+                        // other vendors' quotes still return.
+                        if (count($facilitatorIds) === 1) {
+                            return response()->json([
+                                'errors' => [$e->getMessage()],
+                            ], 400);
+                        }
+                        report($e);
+                        continue;
+                    }
+                }
+
+                if ($single) {
+                    return response()->json($serviceQuotes);
+                }
+
                 return response()->json($serviceQuotes);
             }
-
-            if (!is_array($serviceQuotes)) {
-                $serviceQuotes = [$serviceQuotes];
-            }
-
-            return response()->json($serviceQuotes);
         }
 
         // ─────────────────────────────────────────────────────────────────

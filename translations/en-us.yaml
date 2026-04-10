@@ -620,6 +620,13 @@ order:
     service-quote-info: Select a real time service quote to apply to this order. Once a quote is applied to the order, it will become a purchased rate. Transactions will be tracked within the Fleetbase ledger.
     estimated-days: '{days, plural, one {1 day} other {{days} days}}'
     via-facilitator: 'via {facilitator}'
+    via-parcelpath: via ParcelPath
+    your-account: your account
+    sorted-by: 'Sorted by:'
+    sort-price: lowest price
+    sort-speed: fastest delivery
+    switch-to-speed: Sort by speed
+    switch-to-price: Sort by price
   prompts:
     update-details-success: '{orderId} details has been updated.'
     route-error: Route optimization failed, check route entry and try again.
@@ -1737,3 +1744,29 @@ carrier-onboarding:
     usps: USPS Direct
     connect: Connect
     hybrid-note: Tip — you can run ParcelPath and direct accounts side by side. The order rate selector will show all matching rates and you pick the best one per shipment.
+batch-shipping:
+  title: Batch Shipping
+  upload-description: Upload a CSV file with one shipment per row. Required columns: pickup, dropoff, length, width, height, weight. Optional: row_id, facilitator.
+  preview-title: Preview Shipments
+  rated-title: Rate Results
+  purchasing-title: Purchasing Labels
+  purchasing-message: Purchasing labels...
+  done-title: Batch Complete
+  col-row-id: Row
+  col-pickup: Pickup
+  col-dropoff: Dropoff
+  col-weight: Weight
+  col-facilitator: Facilitator
+  col-rate: Rate
+  col-status: Status
+  col-tracking: Tracking
+  col-label: Label
+  back: Back
+  rate-all: Rate All
+  purchase-all: Purchase All Labels
+  new-batch: New Batch
+  no-rates: No rates
+  rated: Rated
+  purchased: Purchased
+  skipped: Skipped
+  download-label: Download PDF
